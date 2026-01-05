@@ -3,7 +3,6 @@
 
 :root {
     --gold: #C5A059;
-    --red: #ff3939;
     --dark: #2c2c2c;
     --light-bg: #f9f9f9;
     --white: #ffffff;
@@ -57,37 +56,21 @@ header {
 
 /* --- Hero Section (Welcome Banner) --- */
 .hero {
-    background-image: linear-gradient(rgb(55, 55, 55), rgb(40, 40, 40)), url();
-
-    /* Ensures the image covers the whole area */
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1596204562479-7fad53634351?q=80&w=1920&auto=format&fit=crop'); /* Placeholder Silk Image */
     background-size: cover;
-    /* Centers the image */
     background-position: center;
-    /* A fallback color in case the image doesn't load */
-    background-color: #333;
-
     color: var(--white);
     text-align: center;
-    padding: 150px 20px;
+    padding: 100px 20px;
 }
-
-/* Update these lines in styles.css */
 
 .hero h1 {
     font-family: 'Playfair Display', serif;
     font-size: 3rem;
     margin: 0 0 10px 0;
-    color: #4A0E0E; /* Deep Assamese Maroon - Very readable on Gold */
-    text-shadow: 0px 1px 2px rgba(255, 255, 255, 0.5); /* A tiny white glow to separate it */
 }
 
-.hero p {
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto 20px auto;
-    color: #2c2c2c; /* Dark Grey for the subtitle */
-    font-weight: 600;
-}
+.hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 20px auto; }
 
 /* --- Product Grid --- */
 .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
