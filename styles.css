@@ -1,0 +1,227 @@
+/* Import Google Fonts: 'Playfair Display' for Headings, 'Lato' for text */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+    --gold: #C5A059;
+    --red: #ff3939;
+    --dark: #2c2c2c;
+    --light-bg: #f9f9f9;
+    --white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: 'Lato', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+/* --- Header & Navigation --- */
+header {
+    background: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-decoration: none;
+}
+
+.logo span { color: var(--gold); }
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--dark);
+    margin-left: 25px;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+/* --- Hero Section (Welcome Banner) --- */
+.hero {
+    background-image: linear-gradient(rgba(91, 91, 91, 0), rgba(227, 140, 140, 0.568)), url('public/banner.png');
+
+    /* Ensures the image covers the whole area */
+    background-size: cover;
+    /* Centers the image */
+    background-position: center;
+    /* A fallback color in case the image doesn't load */
+    background-color: #333;
+
+    color: var(--white);
+    text-align: center;
+    padding: 150px 20px;
+}
+
+/* Update these lines in styles.css */
+
+.hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    margin: 0 0 10px 0;
+    color: #4A0E0E; /* Deep Assamese Maroon - Very readable on Gold */
+    text-shadow: 0px 1px 2px rgba(255, 255, 255, 0.5); /* A tiny white glow to separate it */
+}
+
+.hero p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    color: #2c2c2c; /* Dark Grey for the subtitle */
+    font-weight: 600;
+}
+
+/* --- Product Grid --- */
+.container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+.section-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 30px; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+
+.card:hover { transform: translateY(-5px); }
+
+.card img {
+    width: 100%;
+    height: 300px; /* Fixed height so cards are even */
+    object-fit: cover; /* Prevents stretching/distortion */
+    border-bottom: 3px solid var(--gold);
+}
+
+.details { padding: 20px; text-align: center; }
+.details h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+.details p { color: #666; font-size: 0.95rem; margin-bottom: 15px; }
+.price { display: block; color: var(--gold); font-weight: 700; font-size: 1.2rem; }
+
+/* --- Contact Page Specifics --- */
+.contact-box {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.contact-btn {
+    display: inline-block;
+    background: #25D366; /* WhatsApp Green */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+/* --- Footer --- */
+footer {
+    background: var(--dark);
+    color: var(--white);
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+    font-size: 0.9rem;
+}
+
+
+/* --- Admin Dashboard Styles --- */
+.admin-header {
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* Left Side: Form */
+.admin-form-panel {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.admin-form-panel input, 
+.admin-form-panel textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Fixes padding issues */
+}
+
+/* Right Side: Product List */
+.product-list-panel {
+    flex: 2;
+    min-width: 300px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.product-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; color: #555; }
+.product-table td { border-bottom: 1px solid #eee; padding: 10px; vertical-align: middle; }
+
+.thumb-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+
+/* Action Buttons */
+#save-btn{
+    background: #26f749;
+}
+.btn-sm { background: #f4f4f4; padding: 5px 10px; font-size: 0.85rem; margin-right: 5px; cursor: pointer; border: none; border-radius: 4px; }
+.btn-edit { background: #f9f50c; color: rgb(0, 0, 0); }
+.btn-delete { background: #e74c3c; color: white; }
+.btn-cancel { background: #95a5a6; color: white; display: none; margin-top: 10px;}
+
+.login-container { max-width: 400px; margin: 100px auto; padding: 30px; background: white; text-align: center; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }

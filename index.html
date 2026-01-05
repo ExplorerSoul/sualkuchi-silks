@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sualkuchi Heritage Silks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <a href="index.html" class="logo">Sualkuchi<span>Silks</span></a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="contact.html">Contact Us</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>The Golden Thread of Assam</h1>
+        <p>Authentic handwoven Muga and Paat Mekhela Sador, direct from the weavers.</p>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Our Latest Collection</h2>
+        
+        <div class="grid" id="product-grid">
+            <p style="text-align:center; width:100%;">Loading our collection...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Sualkuchi Heritage Silks. Handcrafted with love in Assam.</p>
+    </footer>
+
+    <script type="module">
+        import { db, collection, getDocs } from './config.js';
+
+        const grid = document.getElementById('product-grid');
+
+        async function loadProducts() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                
+                if (querySnapshot.empty) {
+                    grid.innerHTML = "<p>No products found.</p>";
+                    return;
+                }
+
+                grid.innerHTML = ""; // Clear loading text
+
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    const html = `
+                        <div class="card">
+                            <img src="${item.image}" alt="${item.name}" loading="lazy">
+                            <div class="details">
+                                <h4>${item.name}</h4>
+                                <p>${item.description}</p>
+                                <span class="price">₹ ${item.price}</span>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += html;
+                });
+            } catch (error) {
+                console.error("Error loading products:", error);
+                grid.innerHTML = "<p>Failed to load products. Please try again later.</p>";
+            }
+        }
+
+        loadProducts();
+    </script>
+
+</body>
+</html>

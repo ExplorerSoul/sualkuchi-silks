@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sualkuchi Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-color: #f4f6f8;">
+
+    <div id="login-section" class="login-container">
+        <h2>Weaver's Login</h2>
+        <input type="email" id="email" placeholder="Admin Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="login-btn" class="btn" style="width:100%; margin-top:10px;">Login</button>
+    </div>
+
+    <div id="dashboard-section" style="display:none;">
+        
+        <div class="admin-header">
+            <h3>Sualkuchi Admin Panel</h3>
+            <button id="logout-btn" class="btn-sm">Logout</button>
+        </div>
+
+        <div class="dashboard-container">
+            
+            <div class="admin-form-panel">
+                <h3 id="form-title">Add New Product</h3>
+                <input type="hidden" id="edit-id"> <label>Product Name</label>
+                <input type="text" id="p-name" placeholder="e.g. Red Muga Sador">
+                
+                <label>Price (₹)</label>
+                <input type="number" id="p-price" placeholder="e.g. 15000">
+                
+                <label>Description</label>
+                <textarea id="p-desc" rows="4" placeholder="Details about cloth..."></textarea>
+                
+                <label>Image (Max 800KB)</label>
+                <input type="file" id="p-image" accept="image/*">
+                <div id="image-preview" style="margin-bottom:10px; font-size:0.8rem; color:#666;"></div>
+
+                <button id="save-btn" class="btn" style="width:100%;">Upload Product</button>
+                <button id="cancel-btn" class="btn-sm btn-cancel" style="width:100%;">Cancel Edit</button>
+                <p id="status-msg" style="text-align:center; margin-top:10px; font-size:0.9rem;"></p>
+            </div>
+
+            <div class="product-list-panel">
+                <h3>Current Inventory</h3>
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table">
+                        </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, signInWithEmailAndPassword, onAuthStateChanged, signOut, collection, addDoc, getDocs, deleteDoc, updateDoc, doc } from './config.js';
+
+        const loginSection = document.getElementById('login-section');
+        const dashboard = document.getElementById('dashboard-section');
+        const inventoryTable = document.getElementById('inventory-table');
+        
+        let isEditing = false;
+        let currentImageBase64 = ""; // Stores existing image during edit
+
+        // --- 1. Authentication ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginSection.style.display = 'none';
+                dashboard.style.display = 'block';
+                loadInventory(); // Load products when logged in
+            } else {
+                loginSection.style.display = 'block';
+                dashboard.style.display = 'none';
+            }
+        });
+
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+
+        // --- 2. Load Inventory (Read) ---
+        async function loadInventory() {
+            inventoryTable.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+            const querySnapshot = await getDocs(collection(db, "products"));
+            
+            inventoryTable.innerHTML = ""; // Clear loader
+            
+            querySnapshot.forEach((document) => {
+                const item = document.data();
+                const id = document.id;
+                
+                const row = `
+                    <tr>
+                        <td><img src="${item.image}" class="thumb-img"></td>
+                        <td>${item.name}</td>
+                        <td>₹${item.price}</td>
+                        <td>
+                            <button class="btn-sm btn-edit" data-id="${id}">Edit</button>
+                            <button class="btn-sm btn-delete" data-id="${id}">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                inventoryTable.innerHTML += row;
+            });
+
+            // Attach Event Listeners to new buttons
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => deleteProduct(e.target.dataset.id));
+            });
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => startEdit(e.target.dataset.id));
+            });
+        }
+
+
+        // --- 3. Delete Product ---
+        async function deleteProduct(id) {
+            if(confirm("Are you sure you want to delete this cloth?")) {
+                await deleteDoc(doc(db, "products", id));
+                loadInventory(); // Refresh list
+            }
+        }
+
+
+        // --- 4. Edit Setup ---
+        async function startEdit(id) {
+            // Find the product data from the table (or fetch again)
+            // For simplicity, we just loop through the cache or UI
+            const querySnapshot = await getDocs(collection(db, "products"));
+            let product = null;
+            querySnapshot.forEach(doc => { if(doc.id === id) product = doc.data(); });
+
+            if(product) {
+                isEditing = true;
+                document.getElementById('edit-id').value = id;
+                document.getElementById('p-name').value = product.name;
+                document.getElementById('p-price').value = product.price;
+                document.getElementById('p-desc').value = product.description;
+                document.getElementById('image-preview').innerText = "Current image loaded. Upload new to change.";
+                
+                currentImageBase64 = product.image; // Keep old image in memory
+                
+                // UI Changes
+                document.getElementById('form-title').innerText = "Edit Product";
+                document.getElementById('save-btn').innerText = "Update Product";
+                document.getElementById('cancel-btn').style.display = 'inline-block';
+                
+                // Scroll to top
+                window.scrollTo(0,0);
+            }
+        }
+
+        document.getElementById('cancel-btn').addEventListener('click', resetForm);
+
+
+        // --- 5. Save (Create or Update) ---
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            const name = document.getElementById('p-name').value;
+            const price = document.getElementById('p-price').value;
+            const desc = document.getElementById('p-desc').value;
+            const fileInput = document.getElementById('p-image');
+            const file = fileInput.files[0];
+            const status = document.getElementById('status-msg');
+
+            if (!name || !price) return alert("Name and Price are required!");
+
+            status.innerText = "Processing...";
+            
+            let finalImage = currentImageBase64; // Default to existing if editing
+
+            // If a new file is selected, process it
+            if (file) {
+                if (file.size > 800000) return alert("Image too big! Max 800KB.");
+                finalImage = await toBase64(file);
+            } else if (!isEditing) {
+                return alert("Please select an image for new products.");
+            }
+
+            try {
+                const productData = {
+                    name: name,
+                    price: price,
+                    description: desc,
+                    image: finalImage,
+                    timestamp: new Date()
+                };
+
+                if (isEditing) {
+                    const id = document.getElementById('edit-id').value;
+                    await updateDoc(doc(db, "products", id), productData);
+                    alert("Product Updated!");
+                } else {
+                    await addDoc(collection(db, "products"), productData);
+                    alert("Product Added!");
+                }
+
+                resetForm();
+                loadInventory();
+                status.innerText = "";
+                
+            } catch (e) {
+                console.error(e);
+                alert("Error: " + e.message);
+                status.innerText = "Error occurred.";
+            }
+        });
+
+        // Helper: Reset Form
+        function resetForm() {
+            isEditing = false;
+            currentImageBase64 = "";
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-price').value = "";
+            document.getElementById('p-desc').value = "";
+            document.getElementById('p-image').value = "";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('image-preview').innerText = "";
+            
+            document.getElementById('form-title').innerText = "Add New Product";
+            document.getElementById('save-btn').innerText = "Upload Product";
+            document.getElementById('cancel-btn').style.display = 'none';
+        }
+
+        // Helper: Convert File to Base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+    </script>
+</body>
+</html>
