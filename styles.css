@@ -57,7 +57,7 @@ header {
 
 /* --- Hero Section (Welcome Banner) --- */
 .hero {
-    background-image: linear-gradient(rgba(91, 91, 91, 0), rgba(227, 140, 140, 0.568)), url('public/banner.png');
+    background-image: linear-gradient(rgb(55, 55, 55), rgb(40, 40, 40)), url();
 
     /* Ensures the image covers the whole area */
     background-size: cover;
