@@ -57,11 +57,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Fallback default details if seller profile does not exist
             const shopName = sellerDetails && sellerDetails.shopName 
                 ? sellerDetails.shopName 
-                : "Sualkuchi Weaver's Loom";
+                : "AK Muga Silk Center";
                 
             const shopAddress = sellerDetails && sellerDetails.address 
                 ? sellerDetails.address 
-                : "Matiparbat, Sualkuchi, Kamrup, Assam - 781103";
+                : "Natol, Sualkuchi, Kamrup, Assam - 781103";
                 
             const sellerPhoneRaw = sellerDetails && sellerDetails.phone 
                 ? sellerDetails.phone 
@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : 26.167499244075803;
                 
             const longitude = sellerDetails && sellerDetails.longitude 
+                ? sellerDetails.longitude 
                 : 91.57376804821594;
             
             console.log(`[Product Details Page] Dynamic map coordinates set: ${latitude}, ${longitude}`);
