@@ -1,0 +1,238 @@
+/* Sualkuchi Heritage Silks - Products Styles */
+
+/* --- Product Grid Catalog --- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 35px;
+    margin-top: 20px;
+}
+
+.card-link {
+    display: block;
+    color: inherit;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid var(--gray-light);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--gold);
+}
+
+.card img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-bottom: 3px solid var(--gold);
+    transition: var(--transition);
+}
+
+.card:hover img {
+    filter: brightness(1.02);
+}
+
+.details {
+    padding: 24px;
+    text-align: center;
+}
+
+.details h4 {
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+    color: var(--dark);
+    font-weight: 700;
+}
+
+.price {
+    display: block;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+
+/* --- Product Details Page View --- */
+.back-link {
+    display: inline-block;
+    margin-bottom: 25px;
+    color: var(--gray);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.back-link:hover {
+    color: var(--maroon);
+    transform: translateX(-4px);
+}
+
+.product-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-light);
+    align-items: start;
+}
+
+.product-image {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--gray-light);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    max-height: 550px;
+    object-fit: cover;
+    display: block;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Authentication Badges */
+.auth-tags {
+    display: flex;
+    gap: 12px;
+}
+
+.tag {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.silk-mark {
+    background-color: #fcf6e9;
+    color: #b38600;
+    border: 1px solid #e6b800;
+}
+
+.handloom-mark {
+    background-color: #eafcf1;
+    color: #27ae60;
+    border: 1px solid #2ecc71;
+}
+
+.p-title {
+    font-size: 2.5rem;
+    color: var(--maroon);
+    line-height: 1.2;
+}
+
+.p-price {
+    font-size: 2rem;
+    color: var(--gold);
+    font-weight: 700;
+    border-bottom: 1px solid var(--gray-light);
+    padding-bottom: 15px;
+}
+
+.p-description h3 {
+    font-size: 1.3rem;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+
+.p-description p {
+    color: var(--gray);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.p-meta {
+    background-color: var(--light-bg);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.p-meta p {
+    color: var(--dark);
+}
+
+/* WhatsApp Inquiry Button styling */
+.buy-btn {
+    background-color: #25D366; /* WhatsApp Green */
+    color: var(--white);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.buy-btn:hover {
+    background-color: #20ba5a;
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+    transform: translateY(-2px);
+}
+
+.buy-btn:active {
+    transform: translateY(0);
+}
+
+/* --- UI State classes --- */
+.loading-msg, .error-msg {
+    grid-column: span 2;
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 1.2rem;
+    color: var(--gray);
+}
+
+.error-msg a {
+    color: var(--maroon);
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* --- Responsive breakdown --- */
+@media (max-width: 768px) {
+    .product-wrapper {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 20px;
+    }
+    
+    .p-title {
+        font-size: 2rem;
+    }
+    
+    .p-price {
+        font-size: 1.6rem;
+    }
+    
+    .loading-msg, .error-msg {
+        grid-column: 1;
+    }
+}

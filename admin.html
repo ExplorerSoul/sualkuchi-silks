@@ -4,46 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sualkuchi Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet CSS for Map Picker -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/admin/admin.css">
 </head>
-<body style="background-color: #f4f6f8;">
+<body style="background-color: var(--light-bg);">
 
+    <!-- Login Module Section (Phone OTP Verification & Google Login) -->
     <div id="login-section" class="login-container">
         <h2>Weaver's Login</h2>
-        <input type="email" id="email" placeholder="Admin Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="login-btn" class="btn" style="width:100%; margin-top:10px;">Login</button>
+        <p style="margin-bottom: 15px; color: var(--gray); font-size: 0.9rem;">Sign in using your mobile number and receive a verification OTP.</p>
+        
+        <input type="tel" id="phone-number" placeholder="Mobile Number (e.g. +919876543210)">
+        
+        <!-- Recaptcha widget container -->
+        <div id="recaptcha-container" style="margin-bottom: 15px;"></div>
+        
+        <button id="send-otp-btn" class="btn" style="width: 100%;">Send Verification Code</button>
+        
+        <!-- Hidden OTP verification code block -->
+        <div id="otp-block" style="display:none; margin-top: 15px;">
+            <input type="text" id="verification-code" placeholder="6-digit verification code">
+            <button id="verify-otp-btn" class="btn" style="width:100%; margin-top: 10px; background-color: var(--maroon);">Verify & Login</button>
+        </div>
+
+        <!-- Separator -->
+        <div style="margin: 20px 0; border-top: 1px solid var(--gray-light); position: relative; text-align: center;">
+            <span style="position: absolute; top: -10px; background: white; padding: 0 10px; color: var(--gray); font-size: 0.85rem; left: 50%; transform: translateX(-50%);">OR</span>
+        </div>
+
+        <!-- Google Login Button -->
+        <button id="google-login-btn" class="btn" style="width: 100%; background-color: #fff; color: #757575; border: 1px solid var(--gray-light); font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.85 2.69-6.57z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.71H.95v2.3C2.43 15.89 5.5 18 9 18z" fill="#34A853"/><path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.96H.95C.35 6.17 0 7.55 0 9s.35 2.83.95 4.04l3z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.8 11.43 0 9 0 5.5 0 2.43 2.11.95 5.28l3 2.3c.71-2.13 2.7-3.71 5.05-3.71z" fill="#EA4335"/></svg>
+            Sign in with Google
+        </button>
     </div>
 
+    <!-- Seller Onboarding Profile Setup Section -->
+    <div id="profile-setup-section" class="login-container" style="display:none; max-width: 600px; text-align: left;">
+        <h2 style="text-align: center; margin-bottom: 10px;">Setup Your Shop Profile</h2>
+        <p style="text-align: center; margin-bottom: 25px; color: var(--gray); font-size: 0.95rem;">Please set your shop details and location marker so customers can find your business.</p>
+        
+        <label for="profile-shop-name" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Shop Name (Optional)</label>
+        <input type="text" id="profile-shop-name" placeholder="e.g. Joy Handlooms (leave blank if home-based)" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-size: 1rem;">
+        
+        <label for="profile-phone" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">WhatsApp Phone Number</label>
+        <input type="tel" id="profile-phone" placeholder="e.g. +919876543210 (Must include country code)" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-size: 1rem;">
+
+        <label for="profile-address" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Street Address (Exactly as it appears on Google Maps)</label>
+        <textarea id="profile-address" rows="3" placeholder="e.g. Matiparbat, Boys High School Road, Sualkuchi, Kamrup, Assam - 781103" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-family: inherit; font-size: 1rem; resize: none;"></textarea>
+        
+        <label style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Drop a Pin on your Location</label>
+        <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 8px;">Click or tap on the hybrid satellite map to place a pin directly at your shop/home location.</p>
+        <div id="map-picker-container" style="height: 300px; border-radius: 8px; border: 1px solid var(--gray-light); margin-bottom: 20px; z-index: 1;"></div>
+        
+        <!-- Hidden Coordinate Fields -->
+        <input type="hidden" id="profile-lat">
+        <input type="hidden" id="profile-lng">
+        
+        <button id="save-profile-btn" class="btn" style="width: 100%; background-color: var(--maroon); color: var(--white);">Create Profile & Continue</button>
+    </div>
+
+    <!-- Protected Inventory Dashboard Section -->
     <div id="dashboard-section" style="display:none;">
         
         <div class="admin-header">
-            <h3>Sualkuchi Admin Panel</h3>
-            <button id="logout-btn" class="btn-sm">Logout</button>
+            <h3>Admin Panel</h3>
+            <div class="admin-profile-container" style="display: flex; align-items: center; gap: 15px;">
+                <div id="admin-avatar-container" style="position: relative; cursor: pointer;" title="Edit Profile">
+                    <img id="admin-avatar" src="" alt="Profile" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--gold); display: none; object-fit: cover;">
+                    <div id="admin-avatar-fallback" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--gold); background: var(--maroon); color: var(--gold-light); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">U</div>
+                </div>
+                <button id="logout-btn" class="btn-sm">Logout</button>
+            </div>
         </div>
 
-        <div class="dashboard-container">
+        <!-- Inventory List / CRUD Panel Container -->
+        <div class="dashboard-container" id="inventory-view-container">
             
+            <!-- Left Side: Product CRUD wizard form -->
             <div class="admin-form-panel">
                 <h3 id="form-title">Add New Product</h3>
-                <input type="hidden" id="edit-id"> <label>Product Name</label>
+                <input type="hidden" id="edit-id"> 
+                
+                <label for="p-name">Product Name</label>
                 <input type="text" id="p-name" placeholder="e.g. Red Muga Sador">
                 
-                <label>Price (₹)</label>
+                <label for="p-price">Price (₹)</label>
                 <input type="number" id="p-price" placeholder="e.g. 15000">
                 
-                <label>Description</label>
+                <label for="p-desc">Description</label>
                 <textarea id="p-desc" rows="4" placeholder="Details about cloth..."></textarea>
                 
-                <label>Image (Max 800KB)</label>
+                <label for="p-image">Image (Max 800KB)</label>
                 <input type="file" id="p-image" accept="image/*">
-                <div id="image-preview" style="margin-bottom:10px; font-size:0.8rem; color:#666;"></div>
+                <div id="image-preview"></div>
 
-                <button id="save-btn" class="btn" style="width:100%;">Upload Product</button>
-                <button id="cancel-btn" class="btn-sm btn-cancel" style="width:100%;">Cancel Edit</button>
-                <p id="status-msg" style="text-align:center; margin-top:10px; font-size:0.9rem;"></p>
+                <button id="save-btn" class="btn">Upload Product</button>
+                <button id="cancel-btn" class="btn btn-cancel" style="display: none;">Cancel Edit</button>
+                <p id="status-msg"></p>
             </div>
 
+            <!-- Right Side: Product list data table -->
             <div class="product-list-panel">
                 <h3>Current Inventory</h3>
                 <table class="product-table">
@@ -56,195 +121,55 @@
                         </tr>
                     </thead>
                     <tbody id="inventory-table">
-                        </tbody>
+                        <tr>
+                            <td colspan="4">Loading...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
 
         </div>
+
+        <!-- Edit Profile View Panel Container (Hidden by default) -->
+        <div class="dashboard-container" id="profile-edit-view-container" style="display:none; max-width: 600px; margin: 0 auto; padding: 25px 20px; background-color: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+            <div class="admin-form-panel" style="width: 100%; text-align: left; box-shadow: none; padding: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--gray-light); padding-bottom: 12px;">
+                    <h3 style="margin: 0; color: var(--maroon); font-family: inherit;">Edit Shop Profile</h3>
+                    <button id="close-profile-btn" class="btn-sm btn-cancel" style="font-size: 0.8rem; padding: 6px 12px;">Back to Dashboard</button>
+                </div>
+                
+                <label for="edit-shop-name" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Shop Name (Optional)</label>
+                <input type="text" id="edit-shop-name" placeholder="e.g. Joy Handlooms" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-size: 1rem;">
+                
+                <label for="edit-profile-phone" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">WhatsApp Phone Number</label>
+                <input type="tel" id="edit-profile-phone" placeholder="e.g. +919876543210 (Must include country code)" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-size: 1rem;">
+
+                <label for="edit-profile-address" style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Street Address (Exactly as in Google Maps)</label>
+                <textarea id="edit-profile-address" rows="3" placeholder="e.g. Matiparbat, Boys High School Road, Sualkuchi, Kamrup, Assam - 781103" style="width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 6px; margin-bottom: 18px; font-family: inherit; font-size: 1rem; resize: none;"></textarea>
+                
+                <label style="display: block; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Update Pin Location</label>
+                <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 8px;">Click or tap on the hybrid satellite map to update your pin coordinate.</p>
+                <div id="edit-map-picker-container" style="height: 300px; border-radius: 8px; border: 1px solid var(--gray-light); margin-bottom: 20px; z-index: 1;"></div>
+                
+                <!-- Hidden Coordinate Fields -->
+                <input type="hidden" id="edit-profile-lat">
+                <input type="hidden" id="edit-profile-lng">
+                
+                <button id="update-profile-btn" class="btn" style="width: 100%; background-color: var(--maroon); color: var(--white); font-weight: bold;">Save Profile Details</button>
+                <p id="profile-status-msg" style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: var(--maroon);"></p>
+            </div>
+        </div>
+
     </div>
 
-    <script type="module">
-        import { auth, db, signInWithEmailAndPassword, onAuthStateChanged, signOut, collection, addDoc, getDocs, deleteDoc, updateDoc, doc } from './config.js';
+    <!-- Leaflet JS for Map Picker -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Shared UI layout scripts -->
+    <script type="module" src="./modules/core/ui.js"></script>
 
-        const loginSection = document.getElementById('login-section');
-        const dashboard = document.getElementById('dashboard-section');
-        const inventoryTable = document.getElementById('inventory-table');
-        
-        let isEditing = false;
-        let currentImageBase64 = ""; // Stores existing image during edit
+    <!-- Admin dashboard module entry point -->
+    <script type="module" src="./modules/admin/auth.js"></script>
 
-        // --- 1. Authentication ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loginSection.style.display = 'none';
-                dashboard.style.display = 'block';
-                loadInventory(); // Load products when logged in
-            } else {
-                loginSection.style.display = 'block';
-                dashboard.style.display = 'none';
-            }
-        });
-
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-        });
-
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-
-
-        // --- 2. Load Inventory (Read) ---
-        async function loadInventory() {
-            inventoryTable.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
-            const querySnapshot = await getDocs(collection(db, "products"));
-            
-            inventoryTable.innerHTML = ""; // Clear loader
-            
-            querySnapshot.forEach((document) => {
-                const item = document.data();
-                const id = document.id;
-                
-                const row = `
-                    <tr>
-                        <td><img src="${item.image}" class="thumb-img"></td>
-                        <td>${item.name}</td>
-                        <td>₹${item.price}</td>
-                        <td>
-                            <button class="btn-sm btn-edit" data-id="${id}">Edit</button>
-                            <button class="btn-sm btn-delete" data-id="${id}">Delete</button>
-                        </td>
-                    </tr>
-                `;
-                inventoryTable.innerHTML += row;
-            });
-
-            // Attach Event Listeners to new buttons
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', (e) => deleteProduct(e.target.dataset.id));
-            });
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', (e) => startEdit(e.target.dataset.id));
-            });
-        }
-
-
-        // --- 3. Delete Product ---
-        async function deleteProduct(id) {
-            if(confirm("Are you sure you want to delete this cloth?")) {
-                await deleteDoc(doc(db, "products", id));
-                loadInventory(); // Refresh list
-            }
-        }
-
-
-        // --- 4. Edit Setup ---
-        async function startEdit(id) {
-            // Find the product data from the table (or fetch again)
-            // For simplicity, we just loop through the cache or UI
-            const querySnapshot = await getDocs(collection(db, "products"));
-            let product = null;
-            querySnapshot.forEach(doc => { if(doc.id === id) product = doc.data(); });
-
-            if(product) {
-                isEditing = true;
-                document.getElementById('edit-id').value = id;
-                document.getElementById('p-name').value = product.name;
-                document.getElementById('p-price').value = product.price;
-                document.getElementById('p-desc').value = product.description;
-                document.getElementById('image-preview').innerText = "Current image loaded. Upload new to change.";
-                
-                currentImageBase64 = product.image; // Keep old image in memory
-                
-                // UI Changes
-                document.getElementById('form-title').innerText = "Edit Product";
-                document.getElementById('save-btn').innerText = "Update Product";
-                document.getElementById('cancel-btn').style.display = 'inline-block';
-                
-                // Scroll to top
-                window.scrollTo(0,0);
-            }
-        }
-
-        document.getElementById('cancel-btn').addEventListener('click', resetForm);
-
-
-        // --- 5. Save (Create or Update) ---
-        document.getElementById('save-btn').addEventListener('click', async () => {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const desc = document.getElementById('p-desc').value;
-            const fileInput = document.getElementById('p-image');
-            const file = fileInput.files[0];
-            const status = document.getElementById('status-msg');
-
-            if (!name || !price) return alert("Name and Price are required!");
-
-            status.innerText = "Processing...";
-            
-            let finalImage = currentImageBase64; // Default to existing if editing
-
-            // If a new file is selected, process it
-            if (file) {
-                if (file.size > 800000) return alert("Image too big! Max 800KB.");
-                finalImage = await toBase64(file);
-            } else if (!isEditing) {
-                return alert("Please select an image for new products.");
-            }
-
-            try {
-                const productData = {
-                    name: name,
-                    price: price,
-                    description: desc,
-                    image: finalImage,
-                    timestamp: new Date()
-                };
-
-                if (isEditing) {
-                    const id = document.getElementById('edit-id').value;
-                    await updateDoc(doc(db, "products", id), productData);
-                    alert("Product Updated!");
-                } else {
-                    await addDoc(collection(db, "products"), productData);
-                    alert("Product Added!");
-                }
-
-                resetForm();
-                loadInventory();
-                status.innerText = "";
-                
-            } catch (e) {
-                console.error(e);
-                alert("Error: " + e.message);
-                status.innerText = "Error occurred.";
-            }
-        });
-
-        // Helper: Reset Form
-        function resetForm() {
-            isEditing = false;
-            currentImageBase64 = "";
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-price').value = "";
-            document.getElementById('p-desc').value = "";
-            document.getElementById('p-image').value = "";
-            document.getElementById('edit-id').value = "";
-            document.getElementById('image-preview').innerText = "";
-            
-            document.getElementById('form-title').innerText = "Add New Product";
-            document.getElementById('save-btn').innerText = "Upload Product";
-            document.getElementById('cancel-btn').style.display = 'none';
-        }
-
-        // Helper: Convert File to Base64
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-
-    </script>
 </body>
 </html>

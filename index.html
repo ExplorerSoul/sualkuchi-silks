@@ -4,23 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sualkuchi Heritage Silks</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/products/products.css">
 </head>
 <body>
 
-    <header>
-        <div class="navbar">
-            <a href="index.html" class="logo">Sualkuchi<span>Silks</span></a>
-            <nav class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="contact.html">Contact Us</a>
-            </nav>
-        </div>
-    </header>
+    <!-- Shared UI Injector mounts header here -->
+    <header></header>
 
     <div class="hero">
         <h1>The Golden Thread of Assam</h1>
-        <p>Authentic handwoven Muga and Paat Mekhela Sador, direct from the weavers.</p>
+        <p>Authentic handwoven Muga and Paat Mekhela Sador, direct from the hands of Sualkuchi's weavers.</p>
     </div>
 
     <div class="container">
@@ -31,47 +27,39 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Sualkuchi Heritage Silks. Handcrafted with love in Assam.</p>
-    </footer>
+    <!-- Shared UI Injector mounts footer here -->
+    <footer></footer>
 
+    <!-- Shared core UI injection script -->
+    <script type="module" src="./modules/core/ui.js"></script>
+
+    <!-- Page rendering script -->
     <script type="module">
-        import { db, collection, getDocs } from './config.js';
+        import { fetchProducts } from './modules/products/products.js';
+        import { renderProductCard } from './modules/products/product-card.js';
 
         const grid = document.getElementById('product-grid');
 
-        async function loadProducts() {
+        async function loadCollection() {
             try {
-                const querySnapshot = await getDocs(collection(db, "products"));
+                const products = await fetchProducts();
                 
-                if (querySnapshot.empty) {
-                    grid.innerHTML = "<p>No products found.</p>";
+                if (products.length === 0) {
+                    grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>No products found.</p>";
                     return;
                 }
 
-                grid.innerHTML = ""; // Clear loading text
-
-                querySnapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const html = `
-                        <div class="card">
-                            <img src="${item.image}" alt="${item.name}" loading="lazy">
-                            <div class="details">
-                                <h4>${item.name}</h4>
-                                <p>${item.description}</p>
-                                <span class="price">₹ ${item.price}</span>
-                            </div>
-                        </div>
-                    `;
-                    grid.innerHTML += html;
+                grid.innerHTML = ""; 
+                products.forEach((product) => {
+                    grid.innerHTML += renderProductCard(product);
                 });
             } catch (error) {
                 console.error("Error loading products:", error);
-                grid.innerHTML = "<p>Failed to load products. Please try again later.</p>";
+                grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--error);'>Failed to load products. Please try again later.</p>";
             }
         }
 
-        loadProducts();
+        loadCollection();
     </script>
 
 </body>

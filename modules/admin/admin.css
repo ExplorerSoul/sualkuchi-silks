@@ -1,0 +1,251 @@
+/* Sualkuchi Heritage Silks - Admin Dashboard Styles */
+
+/* --- Login Form --- */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 40px;
+    background: var(--white);
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-light);
+}
+
+.login-container h2 {
+    color: var(--maroon);
+    margin-bottom: 25px;
+    font-size: 2rem;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.login-container input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
+}
+
+.login-container .btn {
+    background-color: var(--maroon);
+    color: var(--white);
+    width: 100%;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.login-container .btn:hover {
+    background-color: var(--maroon-dark);
+}
+
+
+/* --- Dashboard Header --- */
+.admin-header {
+    background: var(--dark);
+    color: var(--white);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--gold);
+}
+
+.admin-header h3 {
+    font-size: 1.5rem;
+    color: var(--gold-light);
+}
+
+.admin-header .btn-sm {
+    background-color: var(--maroon);
+    color: var(--white);
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+.admin-header .btn-sm:hover {
+    background-color: var(--maroon-dark);
+}
+
+
+/* --- Dashboard Container Grid --- */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: var(--max-width);
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Left Panel: Form Control */
+.admin-form-panel {
+    flex: 1;
+    min-width: 320px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-light);
+    height: fit-content;
+}
+
+.admin-form-panel h3 {
+    font-size: 1.6rem;
+    color: var(--maroon);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gold-light);
+    padding-bottom: 8px;
+}
+
+.admin-form-panel label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: var(--dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-form-panel input[type="text"],
+.admin-form-panel input[type="number"],
+.admin-form-panel textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.admin-form-panel input:focus,
+.admin-form-panel textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
+}
+
+.admin-form-panel input[type="file"] {
+    margin-bottom: 10px;
+}
+
+#save-btn {
+    background-color: var(--success);
+    color: var(--white);
+    font-size: 1rem;
+}
+
+#save-btn:hover {
+    background-color: #27ae60;
+}
+
+.btn-cancel {
+    background-color: var(--gray);
+    color: var(--white);
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+.btn-cancel:hover {
+    background-color: #555555;
+}
+
+
+/* Right Panel: Inventory Table */
+.product-list-panel {
+    flex: 2;
+    min-width: 320px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-light);
+}
+
+.product-list-panel h3 {
+    font-size: 1.6rem;
+    color: var(--maroon);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gold-light);
+    padding-bottom: 8px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.product-table th {
+    text-align: left;
+    border-bottom: 2px solid var(--gray-light);
+    padding: 12px 10px;
+    color: var(--dark);
+    font-weight: 700;
+}
+
+.product-table td {
+    border-bottom: 1px solid var(--gray-light);
+    padding: 15px 10px;
+    vertical-align: middle;
+}
+
+.product-table tr:hover td {
+    background-color: var(--light-bg);
+}
+
+.thumb-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--gray-light);
+}
+
+/* Action Buttons inside Table */
+.product-table .btn-sm {
+    font-weight: 600;
+}
+
+.btn-edit {
+    background-color: #f39c12; /* Rich gold/orange */
+    color: var(--white);
+}
+
+.btn-edit:hover {
+    background-color: #d68910;
+}
+
+.btn-delete {
+    background-color: var(--error);
+    color: var(--white);
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+/* --- Status Messages --- */
+#status-msg {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--gold);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 992px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,51 @@
+/* Sualkuchi Heritage Silks - Contact Page Styles */
+
+.contact-box {
+    background: var(--white);
+    padding: 50px 40px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 600px;
+    margin: 40px auto;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-light);
+}
+
+.contact-box h3 {
+    font-size: 1.6rem;
+    color: var(--maroon);
+    margin-bottom: 15px;
+}
+
+.contact-box p {
+    color: var(--gray);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.contact-box strong {
+    color: var(--dark);
+}
+
+.contact-btn {
+    display: inline-block;
+    background: #25D366; /* WhatsApp Green */
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
+    transition: var(--transition);
+}
+
+.contact-btn:hover {
+    background: #20ba5a;
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3);
+    transform: translateY(-2px);
+}
+
+.contact-btn:active {
+    transform: translateY(0);
+}

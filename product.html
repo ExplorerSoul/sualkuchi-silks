@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Sualkuchi Heritage Silks</title>
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/products/products.css">
+</head>
+<body>
+
+    <!-- Shared UI Injector mounts header here -->
+    <header></header>
+
+    <div class="container product-page-container">
+        <a href="index.html" class="back-link">← Back to Collection</a>
+
+        <div id="product-detail-view" class="product-wrapper">
+            <div class="loading-msg"><p>Loading product details...</p></div>
+        </div>
+    </div>
+
+    <!-- Shared UI Injector mounts footer here -->
+    <footer></footer>
+
+    <!-- Shared core UI injection script -->
+    <script type="module" src="./modules/core/ui.js"></script>
+    
+    <!-- Domain specific page script -->
+    <script type="module" src="./modules/products/product-details.js"></script>
+
+</body>
+</html>
