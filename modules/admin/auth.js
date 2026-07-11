@@ -11,7 +11,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup
 } from '../core/db.js';
-import { loadInventory, saveSellerProfile } from './dashboard.js';
+import { loadInventory, saveSellerProfile, loadCustomOrders } from './dashboard.js';
 
 // Global Map instances
 let onboardingMap = null;
@@ -186,7 +186,10 @@ export function initAuth() {
     const profileSection = document.getElementById('profile-setup-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const inventoryView = document.getElementById('inventory-view-container');
+    const customOrdersView = document.getElementById('custom-orders-view-container');
     const profileEditView = document.getElementById('profile-edit-view-container');
+    const tabInventoryBtn = document.getElementById('tab-inventory-btn');
+    const tabOrdersBtn = document.getElementById('tab-orders-btn');
     
     const sendOtpBtn = document.getElementById('send-otp-btn');
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
@@ -234,7 +237,11 @@ export function initAuth() {
                     dashboardSection.style.display = 'block';
                     
                     if (inventoryView) inventoryView.style.display = 'flex';
+                    if (customOrdersView) customOrdersView.style.display = 'none';
                     if (profileEditView) profileEditView.style.display = 'none';
+
+                    if (tabInventoryBtn) tabInventoryBtn.classList.add('active');
+                    if (tabOrdersBtn) tabOrdersBtn.classList.remove('active');
 
                     loadInventory(); // Load inventory table
                 } else {
@@ -460,16 +467,20 @@ export function initAuth() {
     // 7. Toggle Edit Profile Panel on Avatar Click
     if (avatarBtn) {
         avatarBtn.addEventListener('click', () => {
-            if (inventoryView && profileEditView) {
-                if (inventoryView.style.display !== 'none') {
+            if (inventoryView && customOrdersView && profileEditView) {
+                if (profileEditView.style.display !== 'block') {
                     console.log("[Dashboard Navigation] Transitioning to Edit Profile tab...");
                     inventoryView.style.display = 'none';
+                    customOrdersView.style.display = 'none';
                     profileEditView.style.display = 'block';
+                    if (tabInventoryBtn) tabInventoryBtn.classList.remove('active');
+                    if (tabOrdersBtn) tabOrdersBtn.classList.remove('active');
                     loadProfileEditorValues();
                 } else {
                     console.log("[Dashboard Navigation] Transitioning back to Inventory Dashboard...");
                     profileEditView.style.display = 'none';
                     inventoryView.style.display = 'flex';
+                    if (tabInventoryBtn) tabInventoryBtn.classList.add('active');
                 }
             }
         });
@@ -479,9 +490,10 @@ export function initAuth() {
     if (closeProfileBtn) {
         closeProfileBtn.addEventListener('click', () => {
             console.log("[Dashboard Navigation] Profile Editor close triggered. Showing inventory.");
-            if (inventoryView && profileEditView) {
+            if (inventoryView && customOrdersView && profileEditView) {
                 profileEditView.style.display = 'none';
                 inventoryView.style.display = 'flex';
+                if (tabInventoryBtn) tabInventoryBtn.classList.add('active');
             }
         });
     }
@@ -528,14 +540,48 @@ export function initAuth() {
                 console.log("[Profile Editor] Profile document updated. Transitioning back to inventory.");
                 alert("Profile details updated successfully!");
                 if (statusMsg) statusMsg.innerText = "";
-                if (inventoryView && profileEditView) {
+                if (inventoryView && customOrdersView && profileEditView) {
                     profileEditView.style.display = 'none';
                     inventoryView.style.display = 'flex';
+                    customOrdersView.style.display = 'none';
+                    if (tabInventoryBtn) tabInventoryBtn.classList.add('active');
+                    if (tabOrdersBtn) tabOrdersBtn.classList.remove('active');
                 }
                 loadInventory();
             } else {
                 updateProfileBtn.disabled = false;
                 if (statusMsg) statusMsg.innerText = "Failed to update profile details.";
+            }
+        });
+    }
+
+    // 10. Dashboard tab handlers
+    if (tabInventoryBtn) {
+        tabInventoryBtn.addEventListener('click', () => {
+            if (inventoryView && customOrdersView && profileEditView) {
+                inventoryView.style.display = 'flex';
+                customOrdersView.style.display = 'none';
+                profileEditView.style.display = 'none';
+                
+                tabInventoryBtn.classList.add('active');
+                if (tabOrdersBtn) tabOrdersBtn.classList.remove('active');
+                
+                loadInventory();
+            }
+        });
+    }
+
+    if (tabOrdersBtn) {
+        tabOrdersBtn.addEventListener('click', () => {
+            if (inventoryView && customOrdersView && profileEditView) {
+                inventoryView.style.display = 'none';
+                customOrdersView.style.display = 'flex';
+                profileEditView.style.display = 'none';
+                
+                tabOrdersBtn.classList.add('active');
+                if (tabInventoryBtn) tabInventoryBtn.classList.remove('active');
+                
+                loadCustomOrders();
             }
         });
     }

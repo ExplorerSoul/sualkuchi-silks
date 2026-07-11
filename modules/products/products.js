@@ -7,16 +7,30 @@ import { db, collection, getDocs, getDoc, doc } from '../core/db.js';
  */
 export async function fetchProducts() {
     try {
+        console.log("[Products DB] Fetching active registered weavers list...");
+        const sellersSnapshot = await getDocs(collection(db, "sellers"));
+        const activeSellerIds = new Set();
+        sellersSnapshot.forEach(doc => {
+            activeSellerIds.add(doc.id);
+        });
+        console.log(`[Products DB] Found ${activeSellerIds.size} active weavers.`);
+
         console.log("[Products DB] Querying all products from Firestore collection...");
         const querySnapshot = await getDocs(collection(db, "products"));
         const products = [];
         querySnapshot.forEach((doc) => {
-            products.push({
-                id: doc.id,
-                ...doc.data()
-            });
+            const data = doc.data();
+            // Filter: Only include product if its seller matches an active weaver
+            if (data.sellerId && activeSellerIds.has(data.sellerId)) {
+                products.push({
+                    id: doc.id,
+                    ...data
+                });
+            } else {
+                console.log(`[Products DB] Filtering out product ID: ${doc.id} (No active seller matches sellerId: ${data.sellerId})`);
+            }
         });
-        console.log(`[Products DB] Successfully loaded ${products.length} products from database.`);
+        console.log(`[Products DB] Successfully loaded ${products.length} products from active weavers.`);
         return products;
     } catch (error) {
         console.error("[Products DB] Failed to fetch catalog products:", error);

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist & Orders - Sualkuchi Heritage Silks</title>
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/products/products.css">
+    <style>
+        .wishlist-layout {
+            margin-top: 30px;
+        }
+
+        /* Tabs styling */
+        .wishlist-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 35px;
+            border-bottom: 2px solid var(--gray-light);
+            padding-bottom: 12px;
+        }
+
+        .wishlist-tab-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Playfair Display', serif;
+            position: relative;
+        }
+
+        .wishlist-tab-btn:hover {
+            color: var(--gold);
+        }
+
+        .wishlist-tab-btn.active {
+            color: var(--maroon);
+        }
+
+        .wishlist-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--maroon);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Wishlist Items layout */
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .wishlist-item-container {
+            position: relative;
+        }
+
+        .remove-bookmark-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            color: var(--error);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .remove-bookmark-btn:hover {
+            background: var(--error);
+            color: var(--white);
+            border-color: var(--error);
+            transform: scale(1.05);
+        }
+
+        /* Orders tracker styles */
+        .tracker-login-card {
+            max-width: 450px;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 35px;
+            margin: 40px auto;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .tracker-login-card h3 {
+            color: var(--maroon);
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .tracker-login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .tracker-info-bar {
+            background: var(--gold-light);
+            border-left: 4px solid var(--gold);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .tracker-info-bar p {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .orders-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .order-tracker-card {
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .order-tracker-details h4 {
+            color: var(--maroon);
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .order-tracker-details p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        .order-tracker-details p strong {
+            color: var(--dark);
+        }
+
+        .order-tracker-status {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .badge-large {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+
+        .badge-large.badge-paid {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            border-color: #90caf9;
+        }
+
+        .badge-large.badge-ack {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .order-discuss-btn {
+            background-color: #25D366;
+            color: var(--white);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(37,211,102,0.2);
+            transition: var(--transition);
+        }
+
+        .order-discuss-btn:hover {
+            background-color: #20ba5a;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .order-tracker-card {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .order-tracker-status {
+                align-items: start;
+            }
+            .badge-large {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shared UI Injector mounts header here -->
+    <header></header>
+
+    <div class="container">
+        <h2 class="section-title">My Showroom Space</h2>
+        
+        <div class="wishlist-layout">
+            
+            <!-- Tabs selection -->
+            <div class="wishlist-tabs">
+                <button class="wishlist-tab-btn active" id="tab-wishlist-btn">My Wishlist</button>
+                <button class="wishlist-tab-btn" id="tab-orders-btn">Placed Custom Orders</button>
+            </div>
+
+            <!-- Tab 1: Wishlist bookmark cards -->
+            <div class="tab-panel active" id="panel-wishlist">
+                <div class="wishlist-grid" id="wishlist-items-grid">
+                    <p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 40px 0;">Loading bookmarks...</p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Custom Orders tracker -->
+            <div class="tab-panel" id="panel-orders">
+                
+                <!-- If phone number is NOT tracked yet -->
+                <div class="tracker-login-card" id="tracker-login-box">
+                    <h3>Track Custom Orders</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4;">
+                        Enter the phone number you used when placing your custom order to check status updates and communicate with weavers.
+                    </p>
+                    <input type="tel" id="tracker-phone-input" placeholder="e.g. +919876543210 (Must include country code)">
+                    <button class="btn" id="tracker-submit-btn" style="width:100%; background: var(--maroon); color: var(--white); font-weight:700;">Check Placed Orders</button>
+                </div>
+
+                <!-- Placed orders dashboard -->
+                <div id="tracker-dashboard" style="display: none;">
+                    <div class="tracker-info-bar">
+                        <p>Tracking custom orders for phone: <strong id="tracker-phone-label">+919876543210</strong></p>
+                        <button class="btn-sm btn-cancel" id="tracker-logout-btn" style="margin: 0; padding: 8px 16px;">Track Another Number</button>
+                    </div>
+
+                    <div class="orders-list-container" id="tracker-orders-list">
+                        <p style="text-align: center; color: var(--gray); padding: 40px 0;">Querying custom orders...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Shared UI Injector mounts footer here -->
+    <footer></footer>
+
+    <!-- Shared core UI injection script -->
+    <script type="module" src="./modules/core/ui.js"></script>
+
+    <!-- Page implementation module controller script -->
+    <script type="module" src="./modules/products/wishlist.js"></script>
+
+</body>
+</html>

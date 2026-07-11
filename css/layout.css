@@ -105,30 +105,105 @@ header {
     font-weight: 500;
 }
 
+/* Sticky Footer styling */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    flex: 1 0 auto;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
 /* --- Footer --- */
 footer {
     background: var(--dark);
     color: var(--white);
     text-align: center;
     padding: 30px 20px;
-    margin-top: 50px;
+    margin-top: auto; /* Push footer to bottom */
     font-size: 0.95rem;
     border-top: 4px solid var(--gold);
+    flex-shrink: 0;
 }
 
 footer p {
     margin-bottom: 5px;
 }
 
+/* --- Mobile Hamburger Toggle --- */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--dark);
+    cursor: pointer;
+    padding: 0;
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.menu-toggle:hover {
+    color: var(--gold);
+}
+
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
     .navbar {
+        position: relative;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+    }
+    
+    .menu-toggle {
+        display: block !important; /* Force hamburger toggle to display on mobile */
+    }
+    
+    .nav-links {
+        display: none; /* Hide default menu list */
         flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--white);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        z-index: 1000;
         gap: 15px;
+        border-top: 1px solid var(--gray-light);
+    }
+    
+    .nav-links.show {
+        display: flex; /* Display list row overlays */
     }
     
     .nav-links a {
-        margin: 0 10px;
+        margin: 0;
+        padding: 10px 0;
+        width: 100%;
+        display: block;
+        text-align: center;
+        border-bottom: 1px solid var(--gray-light);
+    }
+
+    .nav-links a:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-links a:hover,
+    .nav-links a.active {
+        border-bottom: 1px solid var(--maroon);
     }
     
     .hero::before,

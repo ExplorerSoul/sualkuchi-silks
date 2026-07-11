@@ -148,6 +148,7 @@ async function startEdit(id) {
             document.getElementById('edit-id').value = id;
             document.getElementById('p-name').value = product.name;
             document.getElementById('p-price').value = product.price;
+            document.getElementById('p-category').value = product.category || "Mekhela Sador";
             document.getElementById('p-desc').value = product.description || '';
             document.getElementById('image-preview').innerText = "Current image loaded. Upload new to change.";
 
@@ -176,6 +177,7 @@ function resetForm() {
 
     document.getElementById('p-name').value = "";
     document.getElementById('p-price').value = "";
+    document.getElementById('p-category').value = "Mekhela Sador";
     document.getElementById('p-desc').value = "";
     document.getElementById('p-image').value = "";
     document.getElementById('edit-id').value = "";
@@ -192,6 +194,7 @@ function resetForm() {
 async function handleSave() {
     const name = document.getElementById('p-name').value.trim();
     const price = document.getElementById('p-price').value.trim();
+    const category = document.getElementById('p-category').value;
     const desc = document.getElementById('p-desc').value.trim();
     const fileInput = document.getElementById('p-image');
     const file = fileInput ? fileInput.files[0] : null;
@@ -259,6 +262,7 @@ async function handleSave() {
         const productData = {
             name: name,
             price: Number(price),
+            category: category,
             description: desc,
             image: finalImage,
             sellerId: user.uid,
@@ -310,3 +314,132 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelBtn.addEventListener('click', resetForm);
     }
 });
+
+/**
+ * Loads custom orders from Firestore belonging ONLY to the logged-in seller
+ */
+export async function loadCustomOrders() {
+    const ordersTable = document.getElementById('orders-table');
+    if (!ordersTable) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+        console.warn("[Dashboard Orders] loadCustomOrders aborted: User is not authenticated.");
+        ordersTable.innerHTML = "<tr><td colspan='6'>Please log in.</td></tr>";
+        return;
+    }
+
+    console.log(`[Dashboard Orders] Loading custom orders for UID: ${user.uid}`);
+    ordersTable.innerHTML = "<tr><td colspan='6'>Loading client orders...</td></tr>";
+
+    try {
+        const q = query(collection(db, "custom_orders"), where("sellerId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        ordersTable.innerHTML = ""; // Clear loader
+
+        if (querySnapshot.empty) {
+            console.log("[Dashboard Orders] No custom orders found for this weaver.");
+            ordersTable.innerHTML = "<tr><td colspan='6' style='text-align: center; color: var(--gray); padding: 30px;'>No custom handloom orders received yet.</td></tr>";
+            return;
+        }
+
+        console.log(`[Dashboard Orders] Rendering ${querySnapshot.size} custom order rows...`);
+
+        // Sort orders by timestamp descending
+        const orders = [];
+        querySnapshot.forEach(docSnap => {
+            orders.push({
+                id: docSnap.id,
+                ...docSnap.data()
+            });
+        });
+        orders.sort((a, b) => {
+            const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+            const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+            return timeB - timeA;
+        });
+
+        orders.forEach((order) => {
+            let formattedBudget = order.budget;
+            try {
+                formattedBudget = Number(order.budget).toLocaleString('en-IN');
+            } catch (e) {}
+
+            let formattedAdvance = order.advancePaid;
+            try {
+                formattedAdvance = Number(order.advancePaid).toLocaleString('en-IN');
+            } catch (e) {}
+
+            const status = order.status || "Paid";
+            let statusBadgeClass = "badge-paid";
+            if (status.toLowerCase() === "acknowledged" || status.toLowerCase() === "in progress") {
+                statusBadgeClass = "badge-ack";
+            } else if (status.toLowerCase() === "completed") {
+                statusBadgeClass = "badge-completed";
+            }
+
+            const cleanPhone = (order.customerContact || '').replace(/[^0-9]/g, '');
+            const whatsappText = `Hello ${order.customerName}, I have acknowledged your custom order for '${order.description}' (Advance paid: ₹${formattedAdvance}). Let's finalize your design!`;
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappText)}`;
+
+            const actionButton = status.toLowerCase() === "paid"
+                ? `<button class="btn-sm btn-edit btn-ack-order" data-id="${order.id}" data-whatsapp="${whatsappUrl}">Acknowledge & Discuss</button>`
+                : `<a href="${whatsappUrl}" target="_blank" class="btn-sm btn-edit" style="background-color: var(--success); display: inline-block; text-align: center; border-radius: 4px;">Chat on WhatsApp</a>`;
+
+            const row = `
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <p><strong>Name:</strong> ${order.customerName}</p>
+                            <p><strong>Contact:</strong> ${order.customerContact}</p>
+                        </div>
+                    </td>
+                    <td style="max-width: 250px; white-space: normal; word-break: break-word;">${order.description}</td>
+                    <td>₹${formattedBudget}</td>
+                    <td>₹${formattedAdvance}</td>
+                    <td><span class="badge ${statusBadgeClass}">${status}</span></td>
+                    <td>${actionButton}</td>
+                </tr>
+            `;
+            ordersTable.innerHTML += row;
+        });
+
+        // Attach event listeners for Acknowledge buttons
+        document.querySelectorAll('.btn-ack-order').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const orderId = e.currentTarget.getAttribute('data-id');
+                const whatsappUrl = e.currentTarget.getAttribute('data-whatsapp');
+                
+                if (confirm("Would you like to acknowledge this order and contact the customer?")) {
+                    await acknowledgeOrder(orderId, whatsappUrl);
+                }
+            });
+        });
+
+    } catch (err) {
+        console.error("[Dashboard Orders] Failed to query custom orders list:", err);
+        ordersTable.innerHTML = "<tr><td colspan='6'>Failed to query custom orders.</td></tr>";
+    }
+}
+
+/**
+ * Updates a custom order status to Acknowledged and opens WhatsApp chat
+ */
+async function acknowledgeOrder(orderId, whatsappUrl) {
+    try {
+        console.log(`[Dashboard Orders DB] Updating order status to Acknowledged for ID: ${orderId}`);
+        const orderDocRef = doc(db, "custom_orders", orderId);
+        await updateDoc(orderDocRef, {
+            status: "Acknowledged"
+        });
+        
+        console.log("[Dashboard Orders DB] Status updated successfully. Opening WhatsApp chat redirect...");
+        window.open(whatsappUrl, '_blank');
+        
+        // Reload custom orders to refresh UI status badges
+        loadCustomOrders();
+    } catch (e) {
+        console.error(`[Dashboard Orders DB] Failed to update order status for ID ${orderId}:`, e);
+        alert("Failed to update status: " + e.message);
+    }
+}

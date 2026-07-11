@@ -20,9 +20,46 @@
     </div>
 
     <div class="container">
-        <h2 class="section-title">Our Latest Collection</h2>
+        <h2 class="section-title">Our Handloom Showroom</h2>
         
-        <div class="grid" id="product-grid">
+        <!-- Search and Filter Controls -->
+        <div class="search-filter-section">
+            <div class="search-box-container">
+                <input type="text" id="search-input" placeholder="Search for handloom products (e.g. Muga, Mekhela, Sador)...">
+                <button id="search-clear-btn" class="search-clear-btn" style="display: none;">&times;</button>
+            </div>
+            
+            <div class="filter-chips">
+                <button class="filter-chip active" data-category="All">All Showcase</button>
+                <button class="filter-chip" data-category="Mekhela Sador">Mekhela Sador</button>
+                <button class="filter-chip" data-category="Polyester Saree">Polyester Saree</button>
+                <button class="filter-chip" data-category="Muga Jora">Muga Jora</button>
+                <button class="filter-chip" data-category="Gamosa">Gamosa</button>
+                <button class="filter-chip" data-category="Jewellery">Jewellery</button>
+                <button class="filter-chip" data-category="Other Items">Other Items</button>
+            </div>
+        </div>
+
+        <!-- Price Sorting Dropdown (visible when searching/filtering) -->
+        <div class="sort-container" id="price-sort-container" style="display: none; justify-content: flex-end; align-items: center; margin-bottom: 25px; gap: 10px;">
+            <label for="price-sort" style="font-weight: bold; font-size: 0.95rem;">Sort by Price:</label>
+            <select id="price-sort" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--gray-light); font-size: 0.95rem; font-family: inherit; background: var(--white);">
+                <option value="none">Default Sorting</option>
+                <option value="asc">Price: Low to High</option>
+                <option value="desc">Price: High to Low</option>
+            </select>
+        </div>
+
+        <!-- Search Results List layout (visible when searching/filtering) -->
+        <div class="product-results-view" id="product-results-container" style="display: none;">
+            <h3 id="results-title" style="margin-bottom: 20px; font-family: inherit; font-size: 1.4rem; color: var(--maroon);">Search Results</h3>
+            <div id="product-list-view" style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px;">
+                <!-- List rows dynamically injected here -->
+            </div>
+        </div>
+
+        <!-- Category Showcase Sections (Visible when empty search/All category) -->
+        <div id="showcase-sections">
             <p style="text-align:center; width:100%;">Loading our collection...</p>
         </div>
     </div>
@@ -36,28 +73,183 @@
     <!-- Page rendering script -->
     <script type="module">
         import { fetchProducts } from './modules/products/products.js';
-        import { renderProductCard } from './modules/products/product-card.js';
+        import { renderProductCard, renderProductListRow } from './modules/products/product-card.js';
 
-        const grid = document.getElementById('product-grid');
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('search-clear-btn');
+        const filterChips = document.querySelectorAll('.filter-chip');
+        const priceSort = document.getElementById('price-sort');
+        const priceSortContainer = document.getElementById('price-sort-container');
+        const resultsContainer = document.getElementById('product-results-container');
+        const listView = document.getElementById('product-list-view');
+        const resultsTitle = document.getElementById('results-title');
+        const showcaseSections = document.getElementById('showcase-sections');
+
+        let allProducts = [];
+        let selectedCategory = 'All';
+        let searchQuery = '';
+        let currentSort = 'none';
+
+        const categories = [
+            'Mekhela Sador',
+            'Polyester Saree',
+            'Muga Jora',
+            'Gamosa',
+            'Jewellery',
+            'Other Items'
+        ];
+
+        function filterAndRender() {
+            // Case 1: Empty search + All category -> Show category-wise grid showcases
+            if (searchQuery === '' && selectedCategory === 'All') {
+                resultsContainer.style.display = 'none';
+                priceSortContainer.style.display = 'none';
+                showcaseSections.style.display = 'block';
+
+                showcaseSections.innerHTML = "";
+
+                let hasAnyItems = false;
+                categories.forEach(cat => {
+                    const catItems = allProducts.filter(p => (p.category || '').toLowerCase() === cat.toLowerCase());
+                    if (catItems.length > 0) {
+                        hasAnyItems = true;
+                        
+                        // Limit to first 4 items for homepage layout
+                        const limitItems = catItems.slice(0, 4);
+                        let gridHTML = "";
+                        limitItems.forEach(p => {
+                            gridHTML += renderProductCard(p);
+                        });
+
+                        const sectionHTML = `
+                            <div class="showcase-section" style="margin-bottom: 50px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--gold-light); margin-bottom: 20px; padding-bottom: 8px;">
+                                    <h3 style="color: var(--maroon); font-size: 1.6rem; margin: 0; font-family: inherit;">${cat}s</h3>
+                                    <a href="#" class="view-all-link" data-cat="${cat}" style="color: var(--gold); font-weight: bold; font-size: 0.95rem;">View All Collection &rarr;</a>
+                                </div>
+                                <div class="grid">
+                                    ${gridHTML}
+                                </div>
+                            </div>
+                        `;
+                        showcaseSections.innerHTML += sectionHTML;
+                    }
+                });
+
+                if (!hasAnyItems) {
+                    showcaseSections.innerHTML = "<p style='text-align: center; color: var(--gray); padding: 40px;'>No handloom collection items found in database.</p>";
+                }
+
+                // Bind click to View All links
+                document.querySelectorAll('.view-all-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const cat = e.currentTarget.getAttribute('data-cat');
+                        
+                        // Clear search
+                        searchInput.value = "";
+                        searchQuery = "";
+                        clearBtn.style.display = 'none';
+                        
+                        // Select chip
+                        filterChips.forEach(chip => {
+                            if (chip.getAttribute('data-category') === cat) {
+                                chip.classList.add('active');
+                            } else {
+                                chip.classList.remove('active');
+                            }
+                        });
+
+                        selectedCategory = cat;
+                        filterAndRender();
+                    });
+                });
+
+                return;
+            }
+
+            // Case 2: Searching or filtering -> Show list format results
+            showcaseSections.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            priceSortContainer.style.display = 'flex';
+
+            let filtered = allProducts.filter(product => {
+                const matchesCategory = selectedCategory === 'All' || 
+                    (product.category && product.category.toLowerCase() === selectedCategory.toLowerCase());
+                
+                const productName = (product.name || '').toLowerCase();
+                const productDesc = (product.description || '').toLowerCase();
+                const matchesSearch = productName.includes(searchQuery) || productDesc.includes(searchQuery);
+                
+                return matchesCategory && matchesSearch;
+            });
+
+            // Set dynamic results title
+            resultsTitle.innerText = `${selectedCategory} Collection ${searchQuery ? ` matching "${searchQuery}"` : ''} (${filtered.length} found)`;
+
+            // Sort products by price if selected
+            if (currentSort === 'asc') {
+                filtered.sort((a, b) => Number(a.price) - Number(b.price));
+            } else if (currentSort === 'desc') {
+                filtered.sort((a, b) => Number(b.price) - Number(a.price));
+            }
+
+            listView.innerHTML = "";
+
+            if (filtered.length === 0) {
+                listView.innerHTML = "<p style='text-align: center; color: var(--gray); padding: 50px 10px; width: 100%;'>No matching products found. Check spelling or clear filters.</p>";
+                return;
+            }
+
+            filtered.forEach(p => {
+                listView.innerHTML += renderProductListRow(p);
+            });
+        }
 
         async function loadCollection() {
             try {
-                const products = await fetchProducts();
-                
-                if (products.length === 0) {
-                    grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>No products found.</p>";
-                    return;
-                }
-
-                grid.innerHTML = ""; 
-                products.forEach((product) => {
-                    grid.innerHTML += renderProductCard(product);
-                });
+                allProducts = await fetchProducts();
+                filterAndRender();
             } catch (error) {
                 console.error("Error loading products:", error);
-                grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--error);'>Failed to load products. Please try again later.</p>";
+                showcaseSections.innerHTML = "<p style='text-align: center; color: var(--error); padding: 40px;'>Failed to load products. Please try again later.</p>";
             }
         }
+
+        // Search Input handler
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            if (searchQuery.length > 0) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            filterAndRender();
+        });
+
+        // Clear Search
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            clearBtn.style.display = 'none';
+            filterAndRender();
+        });
+
+        // Filter chips click handler
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                filterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                selectedCategory = chip.getAttribute('data-category');
+                filterAndRender();
+            });
+        });
+
+        // Price Sort handler
+        priceSort.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            filterAndRender();
+        });
 
         loadCollection();
     </script>

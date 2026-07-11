@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Profile - Sualkuchi Heritage Silks</title>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/products/products.css">
+    <style>
+        .seller-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+            margin-top: 30px;
+            align-items: start;
+        }
+        
+        .seller-sidebar {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .seller-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--maroon);
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            margin: 0 auto 10px;
+            border: 3px solid var(--gold);
+        }
+
+        .seller-name {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--maroon);
+            margin-bottom: 5px;
+        }
+
+        .seller-status {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--success);
+            font-weight: 700;
+            background: #eafcf1;
+            padding: 4px 12px;
+            border-radius: 50px;
+            border: 1px solid #2ecc71;
+            width: fit-content;
+            margin: 0 auto;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .seller-meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--gray-light);
+            border-bottom: 1px solid var(--gray-light);
+            padding: 20px 0;
+        }
+
+        .seller-meta-item p {
+            color: var(--gray);
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .seller-meta-item span {
+            color: var(--dark);
+            line-height: 1.5;
+            display: block;
+        }
+
+        .seller-map-container {
+            height: 200px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .seller-cta-btn {
+            background-color: var(--maroon);
+            color: var(--white);
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(128, 0, 0, 0.15);
+            transition: var(--transition);
+        }
+
+        .seller-cta-btn:hover {
+            background-color: var(--maroon-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(128, 0, 0, 0.25);
+        }
+
+        .whatsapp-outline-btn {
+            border: 2px solid #25D366;
+            color: #25D366;
+            background: transparent;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .whatsapp-outline-btn:hover {
+            background: #25D366;
+            color: var(--white);
+        }
+
+        .seller-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .seller-section-header {
+            font-size: 1.8rem;
+            color: var(--dark);
+            border-bottom: 2px solid var(--gold-light);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Modal styling for custom orders */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            color: var(--gray);
+            background: none;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--maroon);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--maroon);
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        /* Form elements inside modal */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: var(--dark);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="tel"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
+        }
+
+        /* Advance payment selections styling */
+        .advance-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .advance-card {
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+            color: var(--dark);
+            background: var(--white);
+        }
+
+        .advance-card:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .advance-card.selected {
+            border-color: var(--maroon);
+            background-color: var(--gold-light);
+            color: var(--maroon);
+        }
+
+        /* Payment checkout screen style inside modal */
+        .payment-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .payment-screen h3 {
+            color: var(--maroon);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            justify-content: center;
+        }
+
+        .pay-method-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            cursor: pointer;
+            background: var(--white);
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .pay-method-btn:hover {
+            border-color: var(--gold);
+        }
+
+        .pay-method-btn.active {
+            border-color: var(--maroon);
+            background: var(--gold-light);
+        }
+
+        .pay-details-panel {
+            border: 1px dashed var(--gold);
+            border-radius: 10px;
+            background: #fffdf9;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .qr-code-img {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
+            border: 1px solid var(--gray-light);
+            padding: 5px;
+            background: var(--white);
+            display: block;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: var(--maroon);
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success screen style */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success);
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .success-screen h3 {
+            color: var(--success);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            .seller-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shared UI Injector mounts header here -->
+    <header></header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Showroom</a>
+        
+        <div class="seller-layout">
+            
+            <!-- Left Side: Seller profile sidebar info -->
+            <aside class="seller-sidebar">
+                <div class="seller-avatar-large" id="seller-avatar">S</div>
+                <h1 class="seller-name" id="seller-shop-name">Loading...</h1>
+                <div class="seller-status">Verified Weaver</div>
+                
+                <div class="seller-meta-info">
+                    <div class="seller-meta-item">
+                        <p>Address</p>
+                        <span id="seller-address">Loading street address details...</span>
+                    </div>
+                    <div class="seller-meta-item">
+                        <p>Specialty</p>
+                        <span>Assam Heritage Silk (Muga, Paat, Eri Handloom)</span>
+                    </div>
+                </div>
+
+                <!-- Leaflet Interactive Satellite Map -->
+                <div class="seller-map-container" id="seller-interactive-map"></div>
+                
+                <button class="btn seller-cta-btn" id="open-custom-order-btn">Request Custom Order</button>
+                <a href="#" target="_blank" class="whatsapp-outline-btn" id="seller-whatsapp-link">Chat on WhatsApp</a>
+            </aside>
+
+            <!-- Right Side: Weaver's products catalog showroom -->
+            <main class="seller-content">
+                <h2 class="seller-section-header" id="catalog-title">Weaver's Showcase</h2>
+                
+                <div class="grid" id="seller-products-grid">
+                    <p style="grid-column: 1/-1; text-align: center; color: var(--gray);">Loading collection...</p>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <!-- Custom Order & Mock Payment Modal -->
+    <div class="modal" id="custom-order-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal-btn">&times;</button>
+            
+            <!-- Step 1: Design Specification Form -->
+            <div id="step-form">
+                
+                <!-- Guest View (Login Required notice) -->
+                <div id="custom-order-guest-view" style="display: none; text-align: center; padding: 20px 0;">
+                    <h2 class="modal-title">Authentication Required</h2>
+                    <p style="color: var(--gray); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; font-family: inherit;">
+                        To request custom handloom creations from weavers and securely transfer booking advance payments, you must create a customer account.
+                    </p>
+                    <a href="profile.html" class="btn" style="background: var(--maroon); color: var(--white); font-weight: 700; display: block; margin-bottom: 12px; padding: 14px;">Sign In or Create Account</a>
+                    <button class="btn btn-cancel" id="guest-cancel-btn" style="width: 100%; margin: 0;">Cancel</button>
+                </div>
+                
+                <!-- Authenticated User Form -->
+                <div id="custom-order-user-view" style="display: none;">
+                    <h2 class="modal-title">Request Custom Handloom</h2>
+                    <p class="modal-subtitle">Specify your measurements, patterns, or colors. Sualkuchi weavers will craft it on their traditional handlooms.</p>
+                    
+                    <div class="form-group">
+                        <label for="cust-name">Your Full Name</label>
+                        <input type="text" id="cust-name" placeholder="Loading profile name..." disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cust-phone">WhatsApp Number (For coordination)</label>
+                        <input type="tel" id="cust-phone" placeholder="Loading profile contact..." disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cust-desc">Custom Specifications / Design Instructions</label>
+                        <textarea id="cust-desc" rows="4" placeholder="Detail the border patterns (kalka, leaves), body color, cloth type (Paat, Muga), or dimensions..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cust-budget">Estimated Budget (₹)</label>
+                        <input type="number" id="cust-budget" placeholder="e.g. 18000">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="margin-bottom: 2px;">Advance Booking Deposit</label>
+                        <p style="font-size: 0.8rem; color: var(--gray); margin-bottom: 8px;">Select an advance deposit amount to book the handloom and acquire raw silk threads.</p>
+                        <div class="advance-options">
+                            <div class="advance-card selected" data-value="1000">₹ 1,000</div>
+                            <div class="advance-card" data-value="2500">₹ 2,500</div>
+                            <div class="advance-card" data-value="5000">₹ 5,000</div>
+                        </div>
+                    </div>
+
+                    <button class="btn" id="proceed-payment-btn" style="width: 100%; background: var(--maroon); color: var(--white); font-weight: 700; margin-top: 10px;">Proceed to Advance Payment</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Simulated Checkout Portal -->
+            <div id="step-payment" class="payment-screen">
+                <h3>Advance Secure Check-out</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Simulated Gateway for Sualkuchi Weavers Cooperative</p>
+                
+                <div style="font-size: 1.1rem; font-weight: bold; margin: 15px 0;">
+                    Amount to Pay: <span style="color: var(--maroon); font-size: 1.3rem;" id="payment-amount-label">₹ 1,000</span>
+                </div>
+
+                <div class="payment-methods">
+                    <button class="pay-method-btn active" id="pay-upi-tab">Google Pay / UPI</button>
+                    <button class="pay-method-btn" id="pay-card-tab">Credit/Debit Card</button>
+                </div>
+
+                <!-- UPI Panel -->
+                <div class="pay-details-panel" id="panel-upi" style="display: block;">
+                    <!-- QR code image -->
+                    <img src="download.jpg" alt="UPI Scan QR" class="qr-code-img" id="upi-qr-image" style="object-fit: cover;">
+                    <p style="font-size: 0.85rem; color: var(--gray);">Scan this QR code with any UPI app (GPay, PhonePe, Paytm) to transfer the booking advance.</p>
+                </div>
+
+                <!-- Card Panel -->
+                <div class="pay-details-panel" id="panel-card">
+                    <div class="form-group" style="text-align: left;">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="4111 2222 3333 4444" style="margin-bottom: 12px;">
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 2;">
+                                <label>Expiry Date</label>
+                                <input type="text" placeholder="MM/YY">
+                            </div>
+                            <div style="flex: 1;">
+                                <label>CVV</label>
+                                <input type="password" placeholder="***">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spinner loader -->
+                <div class="spinner" id="payment-spinner"></div>
+
+                <button class="btn" id="submit-payment-btn" style="width: 100%; background: var(--success); color: var(--white); font-weight: 700;">Authorize Mock Payment</button>
+                <button class="btn btn-cancel" id="back-form-btn" style="width: 100%; margin-top: 10px;">Go Back</button>
+            </div>
+
+            <!-- Step 3: Payment Success and Booking Confirmation -->
+            <div id="step-success" class="success-screen">
+                <div class="success-icon">✔</div>
+                <h3>Order Placed Successfully!</h3>
+                <p style="color: var(--gray); font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
+                    Your custom handloom order has been recorded. The weaver has been notified and your advance deposit of <strong id="success-amount-label">₹ 1,000</strong> has been safely escrowed.
+                </p>
+                
+                <div style="background-color: var(--light-bg); border-radius: 8px; padding: 15px; text-align: left; font-size: 0.9rem; margin-bottom: 25px; border-left: 4px solid var(--success);">
+                    <p><strong>Order ID:</strong> <span id="success-order-id">ORD-123456</span></p>
+                    <p><strong>Status:</strong> Paid & Awaiting Weaver Ack</p>
+                    <p><strong>Weaver Shop:</strong> <span id="success-shop-name">AK Muga Silk Center</span></p>
+                </div>
+
+                <button class="btn" id="finish-btn" style="width: 100%; background: var(--maroon); color: var(--white); font-weight: 700;">Back to Showroom</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Leaflet JS for Map Picker -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Shared UI Injector mounts footer here -->
+    <footer></footer>
+
+    <!-- Shared core UI injection script -->
+    <script type="module" src="./modules/core/ui.js"></script>
+
+    <!-- Page rendering & transaction logic script -->
+    <script type="module" src="./modules/products/seller.js"></script>
+    <script type="module" src="./modules/products/custom-orders.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weaver Shops - Sualkuchi Heritage Silks</title>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="modules/products/products.css">
+    <style>
+        .sellers-map-header {
+            width: 100%;
+            height: 350px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+            margin-bottom: 40px;
+            z-index: 1;
+        }
+
+        .sellers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .seller-item-card {
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .seller-item-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .seller-card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--maroon);
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border: 2px solid var(--gold);
+        }
+
+        .seller-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .seller-card-title {
+            font-size: 1.3rem;
+            color: var(--maroon);
+            font-weight: 700;
+        }
+
+        .seller-card-address {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .seller-card-actions {
+            border-top: 1px solid var(--gray-light);
+            padding-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .seller-card-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 6px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shared UI Injector mounts header here -->
+    <header></header>
+
+    <div class="container">
+        <h2 class="section-title">Explore Sualkuchi Weaver Shops</h2>
+        
+        <!-- Weavers Interactive Map Directory -->
+        <div class="sellers-map-header" id="sellers-directory-map"></div>
+
+        <!-- Search box and filters -->
+        <div class="search-filter-section">
+            <div class="search-box-container" style="max-width: 700px;">
+                <input type="text" id="seller-search-input" placeholder="Search weavers by name or location (e.g. Matiparbat, Joy, Natol)...">
+                <button id="seller-search-clear-btn" class="search-clear-btn" style="display: none;">&times;</button>
+            </div>
+        </div>
+
+        <!-- Sellers List Grid -->
+        <div class="sellers-grid" id="sellers-list-grid">
+            <p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 40px 0;">Loading weaver shops...</p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Shared UI Injector mounts footer here -->
+    <footer></footer>
+
+    <!-- Shared core UI injection script -->
+    <script type="module" src="./modules/core/ui.js"></script>
+
+    <!-- Page rendering & search module script -->
+    <script type="module" src="./modules/products/sellers-list.js"></script>
+
+</body>
+</html>
